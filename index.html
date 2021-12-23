@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs"></script>
+    <script src="https://unpkg.com/microcms-js-sdk@latest/dist/umd/microcms-js-sdk.js"></script>
+    <script>
+      const { createClient } = microcms
+      const client = createClient({
+        serviceDomain: 'alpine-carousel',
+        apiKey: '7aac712307604d91b21bd96ab93bbfb723d3',
+      })
+    </script>
+    <div class="bg-teal-100 h-screen flex flex-col justify-center items-center">
+      <div
+        class="max-w-4xl mx-auto relative"
+        x-data="{ activeSlide: 0, slides: [], images: [] }"
+        x-init="
+          client
+            .get({
+                endpoint: 'carousel',
+                queries: { limit: 5 }
+            })
+            .then(res => {
+              images = res.contents
+              slides = [...Array(images.length)].map((_, i) => i)
+            })
+        "
+      >
+        <!-- Slides -->
+        <template x-for="slide in slides" :key="slide">
+          <div
+            x-show="activeSlide === slide"
+            class="p-24 font-bold text-5xl h-64 flex items-center bg-teal-500 text-white rounded-lg"
+          >
+            <a
+              :href="images[slide].url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img :src="images[slide].image.url + '?fit=crop&w=220&h=220'" />
+            </a>
+          </div>
+        </template>
+
+        <!-- Buttons -->
+        <div class="absolute w-full flex items-center justify-center px-4">
+          <template x-for="slide in slides" :key="slide">
+            <button
+              class="flex-1 w-4 h-2 mt-4 mx-2 mb-0 rounded-full overflow-hidden transition-colors duration-200 ease-out hover:bg-teal-600 hover:shadow-lg"
+              :class="{ 
+                  'bg-orange-600': activeSlide === slide,
+                  'bg-teal-300': activeSlide !== slide 
+              }"
+              x-on:click="activeSlide = slide"
+            ></button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<!--
+Copyright (c) 2021 by Simeon (https://codepen.io/simeonunder2/pen/povGyVJ)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
